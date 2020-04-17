@@ -4,7 +4,7 @@ import vk_api
 import numpy as np
 import random
 import requests
-inport config
+import config
 
 TIMETABLE_URL = 'http://licey83.ru/images/raspisanie/ras%D1%80.JPG'
 BELLS_URL = 'http://licey83.ru/images/rasp_urukov2020.JPG'
