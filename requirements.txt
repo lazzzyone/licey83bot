@@ -1,4 +1,5 @@
 vk_api
 numpy
 requests
+bs4
 
