@@ -29,11 +29,11 @@ def get_timetable_elschool(day):
         for item in list(table_thu_sat.find_all('tbody')):
             days.append(item)
         result = process_days_html(days)
-        with open('last_homework.txt', 'rw') as fi:
+        with open('last_homework.txt', 'w+') as fi:
             fi.write(str(result))
 
     except Exception:
-        with open('last_homework.txt', 'rw') as fi:
+        with open('last_homework.txt', 'w+') as fi:
             result = ast.literal_eval(fi.read())
 
     days = ['понедельник Понедельник', 'вторник Вторник', 'среда среду Среда Среду', 'четверг', 'пятница пятницу',
