@@ -142,7 +142,7 @@ for event in longpoll.listen():
             elif 'звонки' in user_message_lower:
                 send_photo(user_id, peer_id, BELLS_URL)
             elif 'тест' in user_message_lower:
-                send_message(user_id, peer_id, 'Бот работаетв бета режиме \n Версия API ' + vk_session.api_version)
+                send_message(user_id, peer_id, 'Бот работает в бета режиме \n Версия API ' + vk_session.api_version)
             elif 'дз на' in user_message_lower:
                 print('ЙОУ ' + user_message_lower.split(' ')[-1])
                 print(get_timetable_elschool(user_message_lower.split(' ')[-1]))
