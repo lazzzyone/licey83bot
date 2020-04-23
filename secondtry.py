@@ -45,7 +45,7 @@ def get_timetable_elschool(day):
     if m_index is not None and 0 <= m_index <= 5:
         return result[days_in_dict[m_index]]
     elif m_index is 9:
-        return result.get(days_in_dict[(datetime.datetime.today().weekday()+1) % 6])
+        return result.get(days_in_dict[(datetime.datetime.today().weekday() + 1) % 6])
     else:
         return result.get(days_in_dict[(datetime.datetime.today().weekday()) % 6])
 
@@ -66,7 +66,8 @@ def process_subj(day):
         d = {}
         for subject in subjects:
             try:
-                d[subject.find(class_='flex-grow-1').contents[0]] = subject.find(class_='diary__homework-text').contents[0]
+                d[subject.find(class_='flex-grow-1').contents[0]] = \
+                    subject.find(class_='diary__homework-text').contents[0]
             except IndexError:
                 d[subject.find(class_='flex-grow-1').contents[0]] = 'Домашнее задание отсутствует'
             except AttributeError:
@@ -94,7 +95,7 @@ def send_photo(u_id, p_id, urls):
         from vk_api import VkUpload
         upload = VkUpload(vk_session)
         print(type(urls))
-        if type(urls) == 'List':
+        if isinstance(urls, list):
             for url in urls:
                 image_url = url
                 image = session.get(url=image_url, stream=True)
@@ -157,4 +158,3 @@ for event in longpoll.listen():
                 print('ЙОУ ' + user_message_lower.split(' ')[-1])
                 print(get_timetable_elschool(user_message_lower.split(' ')[-1]))
                 send_message(user_id, peer_id, dict_prettify(get_timetable_elschool(user_message_lower.split(' ')[-1])))
-
