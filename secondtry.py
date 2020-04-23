@@ -88,18 +88,19 @@ def process_days_html(days_html):
         return None
 
 
-def send_photo(u_id, p_id, url):
+def send_photo(u_id, p_id, urls):
     try:
         attachments = []
         from vk_api import VkUpload
         upload = VkUpload(vk_session)
-        image_url = url
-        image = session.get(url=image_url, stream=True)
-        photo = upload.photo_messages(photos=image.raw, peer_id=peer_id)[0]
-        print(photo)
-        attachments.append(
-            'photo{}_{}'.format(photo['owner_id'], photo['id'])
-        )
+        for url in urls:
+            image_url = url
+            image = session.get(url=image_url, stream=True)
+            photo = upload.photo_messages(photos=image.raw, peer_id=peer_id)[0]
+            print(photo)
+            attachments.append(
+                'photo{}_{}'.format(photo['owner_id'], photo['id'])
+            )
         vk.messages.send(
             peer_id=p_id,
             user_id=u_id,
@@ -108,7 +109,7 @@ def send_photo(u_id, p_id, url):
             random_id=np.int64(random.randint(10000, 1000000000000))
         )
     except vk_api.ApiError:
-        send_photo(u_id, p_id, url)
+        send_photo(u_id, p_id, urls)
     pass
 
 
