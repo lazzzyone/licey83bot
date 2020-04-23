@@ -93,8 +93,18 @@ def send_photo(u_id, p_id, urls):
         attachments = []
         from vk_api import VkUpload
         upload = VkUpload(vk_session)
-        for url in urls:
-            image_url = url
+        print(type(urls))
+        if type(urls) == 'List':
+            for url in urls:
+                image_url = url
+                image = session.get(url=image_url, stream=True)
+                photo = upload.photo_messages(photos=image.raw, peer_id=peer_id)[0]
+                print(photo)
+                attachments.append(
+                    'photo{}_{}'.format(photo['owner_id'], photo['id'])
+                )
+        else:
+            image_url = urls
             image = session.get(url=image_url, stream=True)
             photo = upload.photo_messages(photos=image.raw, peer_id=peer_id)[0]
             print(photo)
