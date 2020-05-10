@@ -94,7 +94,6 @@ def send_photo(u_id, p_id, urls):
         attachments = []
         from vk_api import VkUpload
         upload = VkUpload(vk_session)
-        print(type(urls))
         if isinstance(urls, list):
             for url in urls:
                 image_url = url
@@ -119,8 +118,9 @@ def send_photo(u_id, p_id, urls):
             message='Актуалочка',
             random_id=np.int64(random.randint(10000, 1000000000000))
         )
-    except vk_api.ApiError:
+    except vk_api.ApiError as error:
         send_photo(u_id, p_id, urls)
+        print(error.raw)
     pass
 
 
