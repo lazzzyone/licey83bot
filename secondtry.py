@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 import datetime
 import ast
 
-from config import TIMETABLE_URL, BELLS_URL, LOGIN, PASSWORD, DIARYPAGE, ELSCHOOL, TOKEN
+from config import TIMETABLE_URL, BELLS_URL, LOGIN, PASSWORD, DIARYPAGE, ELSCHOOL, TOKEN, BACKUP_TIMETABLE_URL
 
 
 def get_timetable_elschool(day):
@@ -120,6 +120,7 @@ def send_photo(u_id, p_id, urls):
         )
     except vk_api.ApiError as error:
         send_photo(u_id, p_id, urls)
+        send_message(u_id, p_id, 'Произошла ошибка загрузки фото, ебучий сайт упал')
         print(error.raw)
     pass
 
@@ -150,6 +151,8 @@ for event in longpoll.listen():
             user_message_lower = str(user_message_lower[4:])
             if 'расписание' in user_message_lower:  # Если написали заданную фразу
                 send_photo(user_id, peer_id, TIMETABLE_URL)
+            elif 'другое' in user_message_lower:
+                send_photo(user_id, peer_id, BACKUP_TIMETABLE_URL)
             elif 'звонки' in user_message_lower:
                 send_photo(user_id, peer_id, BELLS_URL)
             elif 'тест' in user_message_lower:
