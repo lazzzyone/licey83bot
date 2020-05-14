@@ -167,7 +167,7 @@ def get_fresh_anec():
     text = html.unescape(text.replace('\\', '\'').replace('\"', '').replace('\'\'\'', '*'))
     mylist = ast.literal_eval(text)
     for item in mylist:
-        item.replace('<br/>', '\n')
+        item.replace('<br/>', ' ')
     return random.choice(mylist)
 
 
