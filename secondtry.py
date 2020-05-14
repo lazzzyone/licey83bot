@@ -2,14 +2,16 @@ import ast
 import datetime
 import io
 import random
+import html
+import os
+
 
 import numpy as np
 import requests
 import vk_api
 from bs4 import BeautifulSoup
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
-
-from config import TIMETABLE_URL, BELLS_URL, LOGIN, PASSWORD, DIARYPAGE, ELSCHOOL, TOKEN, BACKUP_TIMETABLE_URL
+from config import TIMETABLE_URL, BELLS_URL, LOGIN, PASSWORD, DIARYPAGE, ELSCHOOL, BACKUP_TIMETABLE_URL
 
 
 def get_timetable_elschool(day):
@@ -157,6 +159,18 @@ def add_note_to_file(note):
     pass
 
 
+def get_fresh_anec():
+    anekurl = 'https://www.anekdot.ru/rss/random.html'
+    response = requests.get(url=anekurl)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    text = soup.decode()[soup.decode().find('['):soup.decode().find(']') + 1]
+    text = html.unescape(text.replace('\\', '\'').replace('\"', '').replace('\'\'\'', '*'))
+    mylist = ast.literal_eval(text)
+    for item in mylist:
+        item.replace('<br/>', '\n')
+    return random.choice(mylist)
+
+
 def get_all_notes():
     with io.open('notes.txt', 'r+', encoding='utf-8') as notes_file:
         data = ast.literal_eval(notes_file.read())
@@ -177,11 +191,16 @@ def remove_note_from_file(number_of_note_to_remove):
         pass
 
 
-vk_session = vk_api.VkApi(token=TOKEN)
+token = os.environ.get('token', None)
+if token is None:
+    import private
+    token = private.token
+vk_session = vk_api.VkApi(token=token)
 print(vk_session.api_version)
 session = requests.Session()
 longpoll = VkBotLongPoll(vk_session, group_id=194333368)
 vk = vk_session.get_api()
+
 
 for event in longpoll.listen():
     # print(event)
@@ -211,4 +230,5 @@ for event in longpoll.listen():
                 remove_note_from_file(user_message_lower[7:].strip(' '))
             elif 'заметки' in user_message_lower:
                 send_message(user_id, peer_id, get_all_notes())
-
+            elif 'анекдот' in user_message_lower:
+                send_message(user_id, peer_id, get_fresh_anec())
