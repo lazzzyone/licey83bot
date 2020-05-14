@@ -1,11 +1,13 @@
-from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
-import vk_api
-import numpy as np
-import random
-import requests
-from bs4 import BeautifulSoup
-import datetime
 import ast
+import datetime
+import io
+import random
+
+import numpy as np
+import requests
+import vk_api
+from bs4 import BeautifulSoup
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
 from config import TIMETABLE_URL, BELLS_URL, LOGIN, PASSWORD, DIARYPAGE, ELSCHOOL, TOKEN, BACKUP_TIMETABLE_URL
 
@@ -56,8 +58,19 @@ def dict_prettify(d):
         res += key
         res += ' : ' + d[key]
         res += '\n'
-
     return res
+
+
+def list_prettify(l):
+    if l.__len__() > 0:
+        res = ''
+        for index, value in enumerate(l):
+            res += str(index+1)
+            res += ' : ' + value
+            res += '\n'
+        return res
+    else:
+        return 'Заметок нет'
 
 
 def process_subj(day):
@@ -134,6 +147,36 @@ def send_message(u_id, p_id, text):
     )
 
 
+def add_note_to_file(note):
+    with io.open('notes.txt', 'r+', encoding='utf-8') as notes_file:
+        data = ast.literal_eval(notes_file.read())
+        data.append(note)
+        notes_file.seek(0)
+        notes_file.write(str(data))
+        notes_file.truncate()
+    pass
+
+
+def get_all_notes():
+    with io.open('notes.txt', 'r+', encoding='utf-8') as notes_file:
+        data = ast.literal_eval(notes_file.read())
+        return list_prettify(data)
+    pass
+
+
+def remove_note_from_file(number_of_note_to_remove):
+    try:
+        with io.open('notes.txt', 'r+', encoding='utf-8') as notes_file:
+            data = ast.literal_eval(notes_file.read())
+            print(data.pop(int(number_of_note_to_remove)-1))
+            notes_file.seek(0)
+            notes_file.write(str(data))
+            notes_file.truncate()
+    except Exception as e:
+        print(e)
+        pass
+
+
 vk_session = vk_api.VkApi(token=TOKEN)
 print(vk_session.api_version)
 session = requests.Session()
@@ -148,7 +191,7 @@ for event in longpoll.listen():
         user_message_lower = event.object.get('text').lower()
         # Слушаем longpoll, если пришло сообщение то:
         if 'бот,' in user_message_lower:
-            user_message_lower = str(user_message_lower[4:])
+            user_message_lower = str(user_message_lower[4:]).strip(' ')
             if 'расписание' in user_message_lower:  # Если написали заданную фразу
                 send_photo(user_id, peer_id, TIMETABLE_URL)
             elif 'другое' in user_message_lower:
@@ -161,3 +204,11 @@ for event in longpoll.listen():
                 print('ЙОУ ' + user_message_lower.split(' ')[-1])
                 print(get_timetable_elschool(user_message_lower.split(' ')[-1]))
                 send_message(user_id, peer_id, dict_prettify(get_timetable_elschool(user_message_lower.split(' ')[-1])))
+            elif 'заметка' in user_message_lower:
+                add_note_to_file(user_message_lower[7:].strip(' '))
+            elif 'удалить' in user_message_lower:
+                print(user_message_lower[7:].strip(' '))
+                remove_note_from_file(user_message_lower[7:].strip(' '))
+            elif 'заметки' in user_message_lower:
+                send_message(user_id, peer_id, get_all_notes())
+
